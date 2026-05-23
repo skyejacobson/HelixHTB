@@ -26,7 +26,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 21.80 seconds
 ```
 
-We can attempt to go to `http://10.129.2.74` but the browser wont redirect us. We need to first add `helix.htb` and the corresponding IP to `/etc/hosts`.
+We can attempt to go to `http://10.129.2.74` but the browser wont redirect us. We need to first add `helix.htb` and the corresponding IP to `/etc/hosts` file on our machine.
 
 Once adding the hostname to the hosts file we can see a cybersecurity organization website with very little control availability. There are 2 buttons that when activated and inspected don't call anything and are red herrings. We can enumerate further with `ffuf` and `feroxbuster`.
 
@@ -38,4 +38,8 @@ Both `ffuf` and `feroxbuster` dont reveal any information subdirectory wise but 
 flow
 ```
 
-When we access the 
+When we access the URL we actually bypass any sort of login required for an `Apache NiFi` site. Older versions of NiFi actually completely bypass any needed login so we can assume that this site is using an older version of `Apache NiFi`. 
+
+In fact the user access to the backend site gives us dangerous read/write permissions to the UI board which could be used to escalate permissions. We can do some research and come up with [CVE-2023-24468](https://github.com/mbadanoiu/CVE-2023-34468). 
+
+TLDR; The DBCPConnectionPool and HikariCPConnectionPool Controller Services in Apache NiFi 0.0.2 through 1.21.0 allow an authenticated and authorized user to configure a Database URL with the H2 driver that enables custom code execution. Leading to an RCE and reverse shell.
