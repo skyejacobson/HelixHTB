@@ -26,11 +26,11 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 21.80 seconds
 ```
 
-We can attempt to go to `http://10.129.2.74` but the browser wont redirect us. We need to first add `helix.htb` and the corresponding IP to `/etc/hosts` file on our machine.
+We can attempt to go to `http://10.129.2.74` but the browser won't redirect us. We need to first add `helix.htb` and the corresponding IP to `/etc/hosts` file on our machine.
 
 Once adding the hostname to the hosts file we can see a cybersecurity organization website with very little control availability. There are 2 buttons that when activated and inspected don't call anything and are red herrings. We can enumerate further with `ffuf` and `feroxbuster`.
 
-Both `ffuf` and `feroxbuster` dont reveal any information subdirectory wise but `ffuf` allows us to find a hidden subdomain called `flow.helix.htb`.
+Both `ffuf` and `feroxbuster` don't reveal any information subdirectory wise but `ffuf` allows us to find a hidden subdomain called `flow.helix.htb`.
 
 ```
 ┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
@@ -62,7 +62,7 @@ We can then make sure that we are hosting a Python `http.server` in the same dir
 Serving HTTP on 0.0.0.0 port 4444 (http://0.0.0.0:4444/) ...
 ```
 
-In a separate terminal we can setup our listener
+In a separate terminal we can setup our listener.
 
 ```
 ┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
