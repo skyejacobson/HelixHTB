@@ -293,3 +293,22 @@ The `asyncWalk.py` file is a full crawl of the server's address space to surface
 It walks the OPC UA tree depth first from Objects (i=85), printing each node's class, NodeId, browse name, and (for variables) its value.
 
 We can use the supplemental information to gain an understanding of what the UPC UA is controlling and what the machine actually is.
+
+```
+ns=2;i=1 QualifiedName(NamespaceIndex=2, Name='Plant')
+     ns=2;i=2 QualifiedName(NamespaceIndex=2, Name='Reactor')
+       ns=2;i=3 QualifiedName(NamespaceIndex=2, Name='TemperatureRaw')
+       ns=2;i=4 QualifiedName(NamespaceIndex=2, Name='Temperature')
+       ns=2;i=5 QualifiedName(NamespaceIndex=2, Name='Pressure')
+       ns=2;i=6 QualifiedName(NamespaceIndex=2, Name='CalibrationOffset')
+     ns=2;i=7 QualifiedName(NamespaceIndex=2, Name='Safety')
+       ns=2;i=8 QualifiedName(NamespaceIndex=2, Name='RodsInserted')
+       ns=2;i=9 QualifiedName(NamespaceIndex=2, Name='EmergencyCooling')
+       ns=2;i=10 QualifiedName(NamespaceIndex=2, Name='TripActive')
+     ns=2;i=11 QualifiedName(NamespaceIndex=2, Name='Control')
+       ns=2;i=12 QualifiedName(NamespaceIndex=2, Name='Mode')
+       ns=2;i=13 QualifiedName(NamespaceIndex=2, Name='TestOverride')
+       ns=2;i=14 QualifiedName(NamespaceIndex=2, Name='ResetTrip')
+```
+
+The output will look much longer than this but we're only interested in the custom configurations to identify what it is we're actually working with. 
