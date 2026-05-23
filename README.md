@@ -283,3 +283,6 @@ We can attempt an SSH tunnel to it through our attacker machine.
 operator@helix:~$ ssh -L 4840:127.0.0.1:4840 operator@10.129.2.106 -i operator_key
 ```
 
+Via research we know that the only way to communicate with OPC UA is `asyncua`. AsyncUA is a pure Python library used to build OPC UA (Open Platform Communications Unified Architecture) clients and servers. It is primarily designed for Industrial Internet of Things (IIoT) and automation systems to securely exchange data with PLCs, sensors, and industrial machinery. It's a likely candidate for the `maintenance_window` controller that we need to activate in order to access and root shell within the server.
+
+We can redundandtly install 
