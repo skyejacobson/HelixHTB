@@ -332,3 +332,23 @@ Operator Control & Safety Guide.pdf     100%   28KB  27.8KB/s   00:01
  asyncuaCLI.py                          operator_key      writeup.txt
 'control systems diagram.png'           pID.sh
 ```
+
+Attempting to open either of these files results in a password protected `.pdf` file and a corrupted metadata `.png` file. The PDF is a likely candidate for the most useful information so we can pipe the pdf hash into `john` and attempt to crack it.
+
+```
+┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
+└─# pdf2john "Operator Control & Safety Guide.pdf" > pdf.hash
+                                                                          
+┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
+└─# john pdf.hash --wordlist=/usr/share/wordlists/rockyou.txt      
+Using default input encoding: UTF-8
+Loaded 1 password hash (PDF [MD5 SHA2 RC4/AES 32/64])
+Cost 1 (revision) is 6 for all loaded hashes
+Will run 4 OpenMP threads
+Press 'q' or Ctrl-C to abort, almost any other key for status
+0g 0:00:00:44 1.42% (ETA: 21:23:36) 0g/s 5442p/s 5442c/s 5442C/s lucinha..lailaa
+<CRACKED_PASSWORD_HERE>        (Operator Control & Safety Guide.pdf)     
+1g 0:00:00:48 DONE (2026-05-22 20:32) 0.02054g/s 5428p/s 5428c/s 5428C/s pingris..nsyncrox
+Use the "--show --format=PDF" options to display all of the cracked passwords reliably
+Session completed.
+```
