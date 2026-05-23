@@ -1,5 +1,5 @@
 # HelixHTB
-Personal writeup of the Helix HTB the machine
+Personal writeup of the Helix HTB machine
 
 ### Test was done over the course of multiple machine resets so IP addresses may differ ###
 
