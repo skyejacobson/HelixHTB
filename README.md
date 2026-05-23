@@ -315,4 +315,20 @@ The output will look much longer than this but we're only interested in the cust
 
 With the information we can make an educated guess: This is an industrial-control simulation — a nuclear reactor model. The `maintenance_window` condition we saw earlier almost certainly opens only when the plant is in a safe, maintenance ready state. You manipulate the plant state into a condition that causes the maintenance window to open. However identifying the correct conditions to put it into a maintenance state blind would be next to impossible. We need to see if there is any information that can help.
 
-Earlier on in the `operator` home directory there were 2 files: a `.pdf` and a `.png` file that had the respective names of `'Operator Control & Safety Guide.pdf'` and `'control systems diagram.png'`.
+Earlier on in the `operator` home directory there were 2 files: a `.pdf` and a `.png` file that had the respective names of `'Operator Control & Safety Guide.pdf'` and `'control systems diagram.png'`. We can pull those files from the home directory into ours to view them.
+
+```
+┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
+└─# scp -i operator_key -r operator@10.129.2.106:~/'control systems diagram.png' .
+control systems diagram.png             100%  899KB 318.7KB/s   00:02    
+                                                                          
+┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
+└─# scp -i operator_key -r operator@10.129.2.106:~/'Operator Control & Safety Guide.pdf' .
+Operator Control & Safety Guide.pdf     100%   28KB  27.8KB/s   00:01    
+                                                                          
+┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
+└─# ls                  
+'Operator Control & Safety Guide.pdf'   nodeOVERRIDE.py   rce.sql
+ asyncuaCLI.py                          operator_key      writeup.txt
+'control systems diagram.png'           pID.sh
+```
