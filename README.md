@@ -117,7 +117,7 @@ nifi@helix:/opt/nifi-1.21.0$ find / -iname "*operator*" 2>/dev/null
 nifi@helix:/opt/nifi-1.21.0$ 
 ```
 
-Nothing of note besides one file. `/opt/nifi-1.21.0/support-bundles/operator_id_ed25519.bak`. The key part of this is the `id_ed25519`. This most definitely represents an ssh key. If we are able to read the key we can copy it and use it to bypass password authentication for the user `operator`.
+Nothing of note besides one file. `/opt/nifi-1.21.0/support-bundles/operator_id_ed25519.bak`. The key part of this is the `id_ed25519`. This represents an ssh key. If we are able to read the key we can copy it and use it to bypass password authentication for the user `operator`.
 
 ```
 nifi@helix:/opt/nifi-1.21.0/support-bundles$ cat operator_id_ed25519.bak 
@@ -285,4 +285,8 @@ operator@helix:~$ ssh -L 4840:127.0.0.1:4840 operator@10.129.2.106 -i operator_k
 
 Via research we know that the only way to communicate with OPC UA is `asyncua`. AsyncUA is a pure Python library used to build OPC UA (Open Platform Communications Unified Architecture) clients and servers. It is primarily designed for Industrial Internet of Things (IIoT) and automation systems to securely exchange data with PLCs, sensors, and industrial machinery. It's a likely candidate for the `maintenance_window` controller that we need to activate in order to access and root shell within the server.
 
-We can redundantly `pip install asyncua` on the victim server in an attempt to 
+We can redundantly `pip install asyncua` on the victim server as a check before moving forward.
+
+Now that `asyncua` is properly installed we have to clarify some information.
+
+
