@@ -352,3 +352,16 @@ Press 'q' or Ctrl-C to abort, almost any other key for status
 Use the "--show --format=PDF" options to display all of the cracked passwords reliably
 Session completed.
 ```
+
+With the cracked password we can attempt to recover the data within the PNG to see if it also brings useful information.
+
+```
+┌──(root㉿kali-linux-2024-2)-[/home/parallels/Documents/Helix]
+└─# convert 'control systems diagram.png' diagram_clean.png
+```
+
+Opening and reading the PDF and the PNG confirms our hypthesis. As a respect to the machine and the challenge I wont display the information in either but the PDF gives us a step-by-step guide on how to activate the maintence mode on the OPC. 
+
+This is something that could be done manually but would be incredibly slow. We can instead streamline it with 2 separate python scripts.
+
+`asyncuaCLI.py` loops over `ns=2;i=1` through `14`, printing each node's browse name, current value, and `UserAccessLevel` so you can see what's actually readable and writable. The `UserAccessLevel` is the key detail, it's the level of control your session actually has, which is what determines whether your offset and flag writes will apply or not. Access levels of `1` correspond to `read` privileges only while `2` and `3` correspond to `write` and `read/write` privileges respectively. 
