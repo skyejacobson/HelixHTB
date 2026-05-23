@@ -313,6 +313,6 @@ ns=2;i=1 QualifiedName(NamespaceIndex=2, Name='Plant')
 
 The output will look much longer than this but we're only interested in the custom configurations to identify what it is we're actually working with. 
 
-With the information we can make an educated guess: This is an industrial-control simulation — a nuclear reactor model. You manipulate the plant state into a condition that causes the maintenance window to open. The `maintenance_window` condition we saw earlier almost certainly opens only when the plant is in a safe, maintenance ready state. Identifying the correct conditions to put it into a maintenance state blind would be next to impossible. We need to see if there is any information that can help.
+With the information we can make an educated guess: This is an industrial-control simulation — a nuclear reactor model. The `maintenance_window` condition we saw earlier almost certainly opens only when the plant is in a safe, maintenance ready state. You manipulate the plant state into a condition that causes the maintenance window to open. However identifying the correct conditions to put it into a maintenance state blind would be next to impossible. We need to see if there is any information that can help.
 
-Earlier on in the home directory of the 
+Earlier on in the `operator` home directory there were 2 files: a `.pdf` and a `.png` file that had the respective names of `'Operator Control & Safety Guide.pdf'` and `'control systems diagram.png'`.
