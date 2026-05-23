@@ -246,4 +246,40 @@ operator@helix:
 
 This is interesting. This is a custom file so known CVE's would be available. The file is referencing a `maintenance_window` file in a different directory that if activated and the `maint-helix-console` is called at the same time, can grant the executing user root access to the machine for a period of time.
 
-We can try to go further to view the file's contents to see what exactly 
+We can try to go further to view the file's contents to see what exactly it contains.
+
+```
+operator@helix:/usr/local/sbin$ cd /opt/helix/state
+-bash: cd: /opt/helix/state: Permission denied
+operator@helix:/usr/local/sbin$ cat /opt/helix/state/maintenance_window
+cat: /opt/helix/state/maintenance_window: Permission denied
+operator@helix:/usr/local/sbin$ ls -la /opt/helix/state/
+ls: cannot access '/opt/helix/state/': Permission denied
+```
+
+Permissions on the machine are setup to restrict any outside access besides root to view the contents of the file or the directory. We can further enumerate what might be running the script/maintenance window using `ss`.
+
+```
+operator@helix:/usr/local/sbin$ ss -tlnp
+State  Recv-Q Send-Q      Local Address:Port    Peer Address:Port Process 
+LISTEN 0      50              127.0.0.1:35903        0.0.0.0:*            
+LISTEN 0      50              127.0.0.1:8080         0.0.0.0:*            
+LISTEN 0      128             127.0.0.1:8081         0.0.0.0:*            
+LISTEN 0      4096        127.0.0.53%lo:53           0.0.0.0:*            
+LISTEN 0      100             127.0.0.1:4840         0.0.0.0:*            
+LISTEN 0      511               0.0.0.0:80           0.0.0.0:*            
+LISTEN 0      128               0.0.0.0:22           0.0.0.0:*            
+LISTEN 0      50     [::ffff:127.0.0.1]:40275              *:*            
+LISTEN 0      128                  [::]:22              [::]:*          
+```
+
+An interesting find. Port 4840 is the official, well-known port for OPC UA (Open Platform Communications Unified Architecture), an industrial machine-to-machine communication protocol used for data exchange, equipment control, and monitoring. Which goes in line with the name of the machine. 
+
+The service is being hosted locally via `localhost`. 
+
+We can attempt an SSH tunnel to it through our attacker machine.
+
+```
+operator@helix:~$ ssh -L 4840:127.0.0.1:4840 operator@10.129.2.106 -i operator_key
+```
+
