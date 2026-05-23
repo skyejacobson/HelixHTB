@@ -1,7 +1,7 @@
 # HelixHTB
 Personal writeup of the Helix HTB the machine
 
-### Test was done over course of multiple machine resets so IP addresses may differ ###
+### Test was done over the course of multiple machine resets so IP addresses may differ ###
 
 Intial nmap scan of the machine shows 2 PoA available
 
@@ -28,7 +28,7 @@ Nmap done: 1 IP address (1 host up) scanned in 21.80 seconds
 
 We can attempt to go to `http://10.129.2.74` but the browser won't redirect us. We need to first add `helix.htb` and the corresponding IP to `/etc/hosts` file on our machine.
 
-Once adding the hostname to the hosts file we can see a cybersecurity organization website with very little control availability. There are 2 buttons that when activated and inspected don't call anything and are red herrings. We can enumerate further with `ffuf` and `feroxbuster`.
+Once adding the hostname to the hosts file we can see a cybersecurity organization website with very little control availability. There are 2 buttons that when activated and inspected - don't call anything and are red herrings. We can enumerate further with `ffuf` and `feroxbuster`.
 
 Both `ffuf` and `feroxbuster` don't reveal any information subdirectory wise but `ffuf` allows us to find a hidden subdomain called `flow.helix.htb`.
 
@@ -40,7 +40,7 @@ flow
 
 When we access the URL we actually bypass any sort of login required for an `Apache NiFi` site. Older versions of NiFi actually completely bypass any needed login so we can assume that this site is using an older version of `Apache NiFi`. 
 
-In fact the user access to the backend site gives us dangerous read/write permissions to the UI board which could be used to escalate permissions. We can do some research and come up with [CVE-2023-24468](https://github.com/mbadanoiu/CVE-2023-34468). 
+In fact, the user access to the backend site gives us dangerous read/write permissions to the UI board; which could be used to escalate permissions. We can do some research and come up with [CVE-2023-24468](https://github.com/mbadanoiu/CVE-2023-34468). 
 
 TLDR; The DBCPConnectionPool and HikariCPConnectionPool Controller Services in Apache NiFi 0.0.2 through 1.21.0 allow an authenticated and authorized user to configure a Database URL with the H2 driver that enables custom code execution. Leading to an RCE and reverse shell.
 
@@ -117,7 +117,7 @@ nifi@helix:/opt/nifi-1.21.0$ find / -iname "*operator*" 2>/dev/null
 nifi@helix:/opt/nifi-1.21.0$ 
 ```
 
-Nothing of note besides one file. `/opt/nifi-1.21.0/support-bundles/operator_id_ed25519.bak`. The key part of this is the `id_ed25519`. This represents an ssh key. If we are able to read the key we can copy it and use it to bypass password authentication for the user `operator`.
+Nothing of note besides one file. `/opt/nifi-1.21.0/support-bundles/operator_id_ed25519.bak`. The key part of this is the `id_ed25519`. This represents an ssh key. If we are able to read the key, we can copy it and use it to bypass password authentication for the user `operator`.
 
 ```
 nifi@helix:/opt/nifi-1.21.0/support-bundles$ cat operator_id_ed25519.bak 
@@ -244,7 +244,7 @@ exit 0
 operator@helix:
 ```
 
-This is interesting. This is a custom file so known CVE's would be available. The file is referencing a `maintenance_window` file in a different directory that if activated and the `maint-helix-console` is called at the same time, can grant the executing user root access to the machine for a period of time.
+This is interesting. This is a custom file so no known CVE's would be available. The file is referencing a `maintenance_window` file in a different directory that if activated, and the `maint-helix-console` is called at the same time, can grant the executing user root access to the machine for a period of time.
 
 We can try to go further to view the file's contents to see what exactly it contains.
 
@@ -287,7 +287,7 @@ Via research we know that the only way to communicate with OPC UA is `asyncua`. 
 
 We can redundantly `pip install asyncua` on the victim server as a check before moving forward.
 
-Now that `asyncua` is properly installed we have to clarify some information.
+With `asyncua` is properly installed we have to clarify some information.
 
 The `asyncWalk.py` file is a full crawl of the server's address space to surface anything that table missed. It reveals hidden nodes, undocumented thresholds, or whatever the watcher daemon is actually reading.
 It walks the OPC UA tree depth first from Objects (i=85), printing each node's class, NodeId, browse name, and (for variables) its value.
