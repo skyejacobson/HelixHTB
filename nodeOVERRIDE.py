@@ -3,7 +3,7 @@ from asyncua.sync import Client
 
 URL         = "opc.tcp://127.0.0.1:4840"
 TEMP_TARGET = 295.0
-STEP        = 2.0     # offset increment per cycle — gentle ramp
+STEP        = 2.0     # offset increment per cycle  a gentle ramp
 INTERVAL    = 30      # seconds between steps
 
 NODE_IDS = (3, 4, 5, 6, 8, 9, 10, 12)
