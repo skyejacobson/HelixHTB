@@ -273,7 +273,7 @@ LISTEN 0      50     [::ffff:127.0.0.1]:40275              *:*
 LISTEN 0      128                  [::]:22              [::]:*          
 ```
 
-An interesting find. Port 4840 is the official, well-known port for OPC UA (Open Platform Communications Unified Architecture), an industrial machine-to-machine communication protocol used for data exchange, equipment control, and monitoring. Which goes in line with the name of the machine. 
+An interesting find. Port 4840 is the official, well-known port for OPC UA (Open Platform Communications Unified Architecture), an industrial machine-to-machine communication protocol used for data exchange, equipment control, and monitoring. Which goes in line with the context of the machine. Likely that it's using OPC UA as a service to control some sort of "machine" or industrial communications network between the actual machinery and the backend/server.  
 
 The service is being hosted locally via `localhost`. 
 
