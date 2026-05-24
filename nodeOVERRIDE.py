@@ -3,16 +3,16 @@ from asyncua.sync import Client
 
 URL         = "opc.tcp://127.0.0.1:4840"
 TEMP_TARGET = 295.0
-STEP        = 2.0     # offset increment per cycle  a gentle ramp
-INTERVAL    = 30      # seconds between steps
+STEP        = 2.0     # CalibrationOffset increase 
+INTERVAL    = 30      # Allowing a time interval so the increase is gradual
 
-NODE_IDS = (3, 4, 5, 6, 8, 9, 10, 12)
+NODE_IDS = (3, 4, 5, 6, 8, 9, 10, 12) # Node IDs identified from asyncuaCLI.py file
 
 c = Client(URL)
 c.connect()
 nodes = {i: c.get_node(f"ns=2;i={i}") for i in NODE_IDS}
 
-# Activate maintenance mode
+# Activate MAINTENANCE mode
 print("Setting Mode = MAINTENANCE")
 c.get_node("ns=2;i=12").write_value('MAINTENANCE')
 
@@ -31,11 +31,6 @@ try:
         print(f"offset={r[6]:6.1f}  Temp={temp:7.2f}  Raw={raw:7.2f}  "
               f"Pressure={pressure:6.2f}  Trip={trip}  Mode={r[12]}")
 
-        if trip:
-            print("!! TripActive True — ramped too fast. "
-                  "Offset writes are now ignored. Stop and reset.")
-            break
-
         if temp >= TEMP_TARGET:
             print(f">> Temp {temp:.2f} >= {TEMP_TARGET}, no trip — "
                   "maintenance window should be opening.")
@@ -45,7 +40,7 @@ try:
         nodes[6].write_value(offset)
         time.sleep(INTERVAL)
 except KeyboardInterrupt:
-    print("\nStopped at offset", offset)
+    print("\nStopped at offset", offset)  # Allowing for KeyboardInterrupt in case temp reaches 295 prematurely
 finally:
     try:
         c.disconnect()
