@@ -1,6 +1,8 @@
 from asyncua.sync import Client
-c = Client("opc.tcp://127.0.0.1:4840")
+c = Client("opc.tcp://127.0.0.1:4840") # Connection client
 c.connect()
+
+# Node walk to read all Node IDs 
 def walk(node, d=0):
     try:
         bn = node.read_browse_name().Name
