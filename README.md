@@ -289,7 +289,7 @@ We can redundantly `pip install asyncua` on the victim server as a check before 
 
 With `asyncua` is properly installed we have to clarify some information.
 
-The `nodeWalk.py` file is a full crawl of the server's address space to surface anything that table missed. It reveals hidden nodes, undocumented thresholds, or whatever the watcher daemon is actually reading.
+The `nodeWalk.py` file is a full crawl of the server's address space to surface anything that in the table that may be useful. It reveals hidden nodes, undocumented thresholds, or whatever the watcher daemon is actually reading.
 It walks the OPC UA tree depth first from Objects (i=85), printing each node's class, NodeId, browse name, and (for variables) its value.
 
 We can use the supplemental information to gain an understanding of what the UPC UA is controlling and what the machine actually is.
