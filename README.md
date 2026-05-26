@@ -410,7 +410,7 @@ ns=2;i=6   CalibrationOffset    value=12.0                      access=3
 ns=2;i=7   Safety               (object/method) The attribute is not supported for the specified Node.(BadAttributeIdInvalid)
 ```
 
-After verifying acces privileges, writing new values to the variables required to enter maintenance mode, and then lastly double checking that each prerequiste is met - we can execute the shell file on the other SSH terminal to attempt root.
+After verifying access privileges, writing new values to the variables required to enter maintenance mode, and then lastly double checking that each prerequiste is met -- we can execute the shell file on the other SSH terminal to attempt root.
 
 ```
 operator@helix:~$ sudo /usr/local/sbin/helix-maint-console
