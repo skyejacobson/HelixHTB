@@ -364,11 +364,11 @@ Opening and reading the PDF and the PNG confirms our hypothesis. As a respect to
 
 This is something that could be done manually but would be incredibly slow. We can instead streamline it with 2 separate python scripts.
 
-`nodeWRITE.py` loops over `ns=2;i=1` through `i=14`, printing each node's browse name, current value, and `UserAccessLevel` so you can see what's actually readable and writable. The `UserAccessLevel` is the key detail, it's the level of control your session actually has, which is what determines whether your offset and flag writes will apply or not. Access levels of `1` correspond to `read` privileges only while `2` and `3` correspond to `write` and `read/write` privileges respectively. 
+`nodeWRITE.py` loops over `ns=2;i=1` through `i=14`, printing each node's browse name, current value, and `UserAccessLevel` so you can see what's actually readable and writable. The `UserAccessLevel` is the key detail, it's the level of control your session actually has. This is what determines whether your offset and flag writes will apply or not. Access levels of `1` correspond to `read` privileges only while `2` and `3` correspond to `write` and `read/write` privileges respectively. 
 
-The `nodeOVERRIDE.py` is the real magic. The PDF guide said the maintenance window opens once temperature crosses `~X°C` without a safety trip, so this drives the reactor sim to exactly that state — it puts the box in maintenance mode, then slowly inflates `CalibrationOffset` to push the displayed temperature up while watching that the raw value stays safe.
+The `nodeOVERRIDE.py` is the real magic. The PDF guide said the maintenance window opens once temperature crosses `~X°C` without a safety trip. This drives the reactor sim to exactly that state — it puts the box in maintenance mode, then slowly inflates `CalibrationOffset` to push the displayed temperature up while watching that the raw value stays safe.
 
-It sets 2 other required variables to enable maintenance mode, then ramps `CalibrationOffset` by STEP every 30 seconds, reading all the key nodes each cycle.
+It sets 2 other required variables to enable maintenance mode, then ramps `CalibrationOffset` a certain value every 30 seconds, reading all the key nodes each cycle.
 
 With all this information in hand we can `echo '' > FILENAME.py` and execute both scripts on our tunneled terminal and then open a separate terminal for executing the `helix-maint-console`.
 
