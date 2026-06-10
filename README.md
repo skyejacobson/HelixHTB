@@ -313,7 +313,7 @@ ns=2;i=1 QualifiedName(NamespaceIndex=2, Name='Plant')
 
 The output will look much longer than this but we're only interested in the custom configurations to identify what it is we're actually working with. 
 
-With the information we can make an educated guess: This is an industrial-control simulation — a nuclear reactor model. The `maintenance_window` condition we saw earlier almost certainly opens only when the plant is in a safe, maintenance ready state. You manipulate the plant state into a condition that causes the maintenance window to open. However, identifying the correct conditions to put it into a maintenance state blind would be next to impossible. We need to see if there is any information that can help.
+With the information we can make an educated guess: This is an industrial control simulation — a nuclear reactor model. The `maintenance_window` condition we saw earlier almost certainly opens only when the plant is in a safe, maintenance ready state. You manipulate the plant state into a condition that causes the maintenance window to open. However, identifying the correct conditions to put it into a maintenance state blind would be next to impossible. We need to see if there is any information that can help.
 
 Earlier on in the `operator` home directory there were 2 files: a `.pdf` and a `.png` file that had the respective names of `'Operator Control & Safety Guide.pdf'` and `'control systems diagram.png'`. We can pull those files from the home directory into ours to view them.
 
@@ -360,7 +360,7 @@ With the cracked password we can attempt to recover the data within the PNG to s
 └─# convert 'control systems diagram.png' diagram_clean.png
 ```
 
-Opening and reading the PDF and the PNG confirms our hypthesis. As a respect to the machine and the challenge I wont display the information in either but the PDF gives us a step-by-step guide on how to activate the maintence mode on the OPC. 
+Opening and reading the PDF and the PNG confirms our hypothesis. As a respect to the machine and the challenge I wont display the information in either file but the PDF gives us a step-by-step guide on how to activate the maintence mode on the OPC. 
 
 This is something that could be done manually but would be incredibly slow. We can instead streamline it with 2 separate python scripts.
 
