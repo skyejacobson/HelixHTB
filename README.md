@@ -28,7 +28,7 @@ Nmap done: 1 IP address (1 host up) scanned in 21.80 seconds
 
 We can attempt to go to `http://10.129.2.74` but the browser won't redirect us. We need to first add `helix.htb` and the corresponding IP to `/etc/hosts` file on our machine.
 
-Once adding the hostname to the hosts file we can see a cybersecurity organization website with very little control availability. There are 2 buttons that when activated and inspected - don't call anything and are red herrings. We can enumerate further with `ffuf` and `feroxbuster`.
+Once adding the hostname to the hosts file we can see a cybersecurity organization website with very little control availability. There are 2 buttons that when activated and inspected, don't call anything. We can enumerate further with `ffuf` and `feroxbuster`.
 
 Both `ffuf` and `feroxbuster` don't reveal any information subdirectory wise but `ffuf` allows us to find a hidden subdomain called `flow.helix.htb`.
 
